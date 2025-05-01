@@ -14,7 +14,7 @@ export interface IForm {
     payment: PaymentType;
     address: string;
     email: string;
-    tel: string;
+    phone: string;
     clearForm(): void;
 }
  

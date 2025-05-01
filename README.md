@@ -250,7 +250,6 @@ type TFormContacts = Pick<IForm, 'email' | 'tel'>;
 Поля класса:
 - _close: HTMLElement - кнопка перехода на главную страницу
 
-
 ### Слой коммуникации
 
 #### Класс AppApi
