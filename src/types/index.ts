@@ -35,4 +35,4 @@ export type TProductBasket = Pick<IProduct, 'id' | 'title' | 'price'>;
 
 export type TFormPayment = Pick<IForm, 'address' | 'payment'>;
 
-export type TFormContacts = Pick<IForm, 'email' | 'tel'>;
+export type TFormContacts = Pick<IForm, 'email' | 'phone'>;

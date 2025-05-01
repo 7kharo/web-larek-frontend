@@ -62,7 +62,7 @@ interface IForm {
     payment: PaymentType;
     address: string;
     email: string;
-    tel: string;
+    phone: string;
     clearForm(): void;
 }
 ```
@@ -102,7 +102,7 @@ type TFormPayment = Pick<IForm, 'address' | 'payment'>;
 
 Данные покупателя в форме для контактов покупателя:
 ```
-type TFormContacts = Pick<IForm, 'email' | 'tel'>;
+type TFormContacts = Pick<IForm, 'email' | 'phone'>;
 ```
 
 ## Архитектура приложения 
