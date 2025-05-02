@@ -220,17 +220,41 @@ type TFormContacts = Pick<IForm, 'email' | 'phone'>;
 - сеттеры и геттеры для изменения полей карточки
 
 #### Класс FormView
-Класс для создания форм. Наследуется логика от класса `Component`.
+Абстрактный класс для создания форм. Наследуется логика от класса `Component`.
 
-- constructor(protected container: HTMLFormElement, protected events: IEvents). Конструктор принимает корневой DOM-элемент формы для его инициализации и экземпляр класса `EventEmitter` для возможности инициализации событий.
-
-Поля класса:
-- _submit: HTMLButtonElement - кнопка сабмита в форме
-- _errors: HTMLElement - поле ошибок в форме
+- protected constructor(container: HTMLElement, protected events: IEvents, protected formData: T). Конструктор принимает корневой DOM-элемент формы для его инициализации, экземпляр класса `EventEmitter` для возможности инициализации событий и наполнение формы.
 
 Методы класса:
-- сеттеры (`valid`, `errors`) для инициализации ошибок
-- render(state: Partial`<T>` & IFormState) - рендер формы на странице
+- protected abstract validate(): boolean - для инициализации ошибок
+- protected abstract render(): void - рендер формы для отображения на странице
+
+#### Класс PaymentForm
+Класс для создания формы оплаты. Наследуется логика от класса `Form<TFormPayment>`.
+
+- constructor(container: HTMLElement, events: IEvents) - Конструктор принимает корневой DOM-элемент формы для его инициализации, экземпляр класса `EventEmitter` для возможности инициализации событий.
+
+Поля класса:
+- _paymentButtons: NodeListOf<HTMLElement> - элементы кнопки выбора метода оплаты
+- _addressInput: HTMLInputElement - инпут для ввода адреса доставки
+
+Методы класса:
+- render(): void - отрисовка формы выбора оплаты и адреса
+- validate(): boolean - валидация полей
+- onSubmit(): void - сабмит формы
+
+#### Класс ContactsForm
+Класс для создания формы для ввода контактов. Наследуется логика от класса `Form<TFormContacts>`.
+
+- constructor(container: HTMLElement, events: IEvents) - Конструктор принимает корневой DOM-элемент формы для его инициализации, экземпляр класса `EventEmitter` для возможности инициализации событий.
+
+Поля класса:
+- _emailInput: HTMLInputElement - инпут для ввода адреса электронной почты
+- _phoneInput: HTMLInputElement - инпут для ввода номера телефона
+
+Методы класса:
+- render(): void - отрисовка формы для ввода контактов
+- validate(): boolean - валидация полей
+- onSubmit(): void - сабмит формы
 
 
 #### Класс Modal
