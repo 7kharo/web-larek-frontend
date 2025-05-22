@@ -9,7 +9,11 @@ export class Basket {
     isProductIn(productId: string): boolean {
         return this.products.some(product => product.id === productId);
     } // метод, проверяющий наличие товара в корзине по его Id
-    
+
+    getBasketProducts():IProduct[] {
+        return this.products;
+    } 
+
     getTotalSum(): number {
         return this.products.reduce((total, product) => total + product.price, 0);
     } // метод, осуществляющий подсчет общей суммы товаров в корзине

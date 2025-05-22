@@ -1,4 +1,4 @@
-export type ProductType = 'софт-скилл' | 'другое' | 'дополнительное' | 'кнопка' | 'хард-скилл';
+export type ProductType = 'софт-скил' | 'другое' | 'дополнительное' | 'кнопка' | 'хард-скил';
 export type PaymentType = 'онлайн' | 'при получении' | ''; 
 export type FormErrors = Partial<Record<keyof IForm, string>>;
 
