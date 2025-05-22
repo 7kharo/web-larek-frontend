@@ -21,6 +21,10 @@ export class Page extends Component<IPage> {
         this.gallery = ensureElement<HTMLElement>('.gallery');
         this.wrapper = ensureElement<HTMLElement>('.page__wrapper');
         this.basket = ensureElement<HTMLElement>('.header__basket');
+
+        this.basket.addEventListener('click', () => {
+            this.events.emit('basket: open');
+        });
     }
 
     setCounter(value: number): void {

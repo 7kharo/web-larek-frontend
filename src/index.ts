@@ -6,6 +6,8 @@ import { ProductList } from './components/model/ProductList';
 import { IEvents, EventEmitter } from './components/base/events';
 import { IProduct } from './types';
 import { Page } from './components/view/Page';
+import { cloneTemplate, ensureElement } from './utils/utils';
+import { CardMain } from './components/view/CardMain';
 
 const events = new EventEmitter();
 const basket = new Basket(events);
@@ -14,6 +16,8 @@ const productList = new ProductList (events);
 
 const pageElement = document.querySelector('.page') as HTMLElement;
 const page = new Page (pageElement, events);
+
+const cardTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 
 const items: IProduct[] = [
         {
@@ -99,9 +103,11 @@ const items: IProduct[] = [
     ]
 
     productList.setProducts(items);
+    const domCards:HTMLElement[] = productList.getProducts().map((item) => {
+        const product = new CardMain ('card', cloneTemplate(cardTemplate));
+        return product.renderCard(item);
+    });
 
-    page.setCounter(100);
-    console.log(productList.getProducts());
-    console.log(productList.getProductById("90973ae5-285c-4b6f-a6d0-65d1d760b102"));
+    page.setCatalog(domCards);
 
-    console.log(basket.getBasketProducts());
+

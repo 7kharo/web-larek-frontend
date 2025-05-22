@@ -1,6 +1,9 @@
 export type ProductType = 'софт-скил' | 'другое' | 'дополнительное' | 'кнопка' | 'хард-скил';
 export type PaymentType = 'онлайн' | 'при получении' | ''; 
 export type FormErrors = Partial<Record<keyof IForm, string>>;
+export type CategoryClassesType = {
+  [Key in ProductType]: string;
+};
 
  export interface IProduct {
     id: string;
