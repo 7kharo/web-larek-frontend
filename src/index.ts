@@ -114,6 +114,6 @@ const items: IProduct[] = [
 
     page.setCatalog(domCards);
     const previewCard = new Card ('card', cloneTemplate(cardPreviewTemplate));
-    modal.render({content: previewCard.renderCard(items[0])});
+    modal.render({content: previewCard.renderCard(items[2])});
 
 
