@@ -7,7 +7,8 @@ import { IEvents, EventEmitter } from './components/base/events';
 import { IProduct } from './types';
 import { Page } from './components/view/Page';
 import { cloneTemplate, ensureElement } from './utils/utils';
-import { CardMain } from './components/view/CardMain';
+import { Card } from './components/view/Card';
+import { Modal } from './components/view/Modal';
 
 const events = new EventEmitter();
 const basket = new Basket(events);
@@ -15,9 +16,12 @@ const form = new FormData(events);
 const productList = new ProductList (events);
 
 const pageElement = document.querySelector('.page') as HTMLElement;
-const page = new Page (pageElement, events);
+const modalElement = ensureElement<HTMLTemplateElement>('#modal-container');
+const page = new Page(pageElement, events);
+const modal = new Modal(modalElement, events);
 
 const cardTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
+const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
 
 const items: IProduct[] = [
         {
@@ -104,10 +108,12 @@ const items: IProduct[] = [
 
     productList.setProducts(items);
     const domCards:HTMLElement[] = productList.getProducts().map((item) => {
-        const product = new CardMain ('card', cloneTemplate(cardTemplate));
+        const product = new Card ('card', cloneTemplate(cardTemplate));
         return product.renderCard(item);
     });
 
     page.setCatalog(domCards);
+    const previewCard = new Card ('card', cloneTemplate(cardPreviewTemplate));
+    modal.render({content: previewCard.renderCard(items[0])});
 
 

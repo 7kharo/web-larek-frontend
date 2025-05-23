@@ -3,12 +3,13 @@ import { ensureElement } from "../../utils/utils";
 import { Component } from "../base/Component";
 import { categoryClasses, CDN_URL } from "../../utils/constants"
 
-interface ICardMain {
+interface ICard {
     setId (value: string): void;
     setTitle (value: string): void;
     setCategory (value: ProductType): void;
     setCardImage (value: string): void;
     setPrice (value: number): void;
+    setDescription (value: string): void;
 
     getId(): string;
 }
@@ -17,22 +18,24 @@ interface ICardActions {
     onClick: (event: MouseEvent) => void;
 }
 
-export class CardMain extends Component<ICardMain> {
+export class Card extends Component<ICard> {
     protected title: HTMLElement;
-    protected category: HTMLElement;
-    protected image: HTMLImageElement;
+    protected category?: HTMLElement;
+    protected image?: HTMLImageElement;
     protected price: HTMLElement;
-    protected button: HTMLButtonElement;
+    protected button?: HTMLButtonElement;
+    protected description?: HTMLElement;
 
     constructor(protected blockName: string, container: HTMLElement, actions?: ICardActions) {
 
         super(container);
 
         this.title = ensureElement<HTMLElement>(`.${blockName}__title`, container);
-        this.image = ensureElement<HTMLImageElement>(`.${blockName}__image`, container);
-        this.category = ensureElement<HTMLElement>(`.${blockName}__category`, container);
         this.price = ensureElement<HTMLElement>(`.${blockName}__price`, container);
-
+        
+        this.image = container.querySelector(`.${blockName}__image`);
+        this.category = container.querySelector(`.${blockName}__category`);
+        this.description = container.querySelector(`.${blockName}__text`);
         this.button = container.querySelector(`.${blockName}__button`);
         
         if (actions?.onClick) {
@@ -49,7 +52,7 @@ export class CardMain extends Component<ICardMain> {
     }
 
     getId (): string {
-        return this.container.dataset.id;
+        return this.container.dataset.id || '';
     }
 
     setTitle (value: string): void {
@@ -57,22 +60,33 @@ export class CardMain extends Component<ICardMain> {
     }
 
     setCategory (value: ProductType): void {
-        this.setText (this.category, value);
-        this.category.classList.add(categoryClasses[value]);
+        if (this.category) {
+            this.setText (this.category, value);
+            this.category.classList.add(categoryClasses[value]);
+        }
     }
 
     setCardImage (value: string): void {
-        this.setImage(this.image, CDN_URL + value);
+        if (this.image) {
+            this.setImage(this.image, CDN_URL + value);
+        }
     }
 
     setPrice (value: number): void {  
+        if (!value) {
+            this.setText(this.price, 'Бесценно');    
+        } else {
+            this.setText(this.price, value.toString() + ' синапсов');
+        }
+
         if (this.button) {
-            if (!value) {
-                this.setText(this.price, 'Бесценно');
-                this.button.disabled = true;
-            } else {
-                this.setText(this.price, value.toString() + ' синапсов');
-            }
+            this.button.disabled = !value;
+        }
+    }
+
+    setDescription (value: string): void {
+        if (!this.description) {
+            this.setText(this.description, value);
         }
     }
 
@@ -82,6 +96,7 @@ export class CardMain extends Component<ICardMain> {
         this.setId(item.id);
         this.setCardImage(item.image);
         this.setCategory(item.category);
+        this.setDescription(item.category);
         return this.container;
     }
 }
