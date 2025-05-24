@@ -9,6 +9,9 @@ import { Page } from './components/view/Page';
 import { cloneTemplate, ensureElement } from './utils/utils';
 import { Card } from './components/view/Card';
 import { Modal } from './components/view/Modal';
+import { PaymentForm } from './components/view/PaymentForm';
+import { ContactsForm } from './components/view/ContactsForm';
+import { Success } from './components/view/Sucsess';
 
 const events = new EventEmitter();
 const basket = new Basket(events);
@@ -108,7 +111,13 @@ const items: IProduct[] = [
 
     productList.setProducts(items);
     const domCards:HTMLElement[] = productList.getProducts().map((item) => {
-        const product = new Card ('card', cloneTemplate(cardTemplate));
+        const product = new Card ('card', cloneTemplate(cardTemplate), {
+            onClick: () => {
+                modal.render({content: previewCard.renderCard(item)});
+                modal.open();
+                page.setLocked(true);
+            },
+        });
         return product.renderCard(item);
     });
 
@@ -116,4 +125,33 @@ const items: IProduct[] = [
     const previewCard = new Card ('card', cloneTemplate(cardPreviewTemplate));
     modal.render({content: previewCard.renderCard(items[2])});
 
+    // Валидация
+
+    // events.on('order: change', () => {
+    //     const { email, phone } = form.validateOrder();
+    //     const valid = !email && !phone;
+    //     const errors = Object.values({ phone, email }).filter((i) => !!i).join('; ');
+
+    //     PaymentForm.render({
+    //         email: form.getFormFields().email,
+    //         phone: form.getFormFields().phone,
+    //         valid: valid,
+    //         errors: errors,
+    //     })
+    // })
+
+const paymentFormTemplate = document.querySelector('#order') as HTMLTemplateElement;
+const paymentFormElement = paymentFormTemplate.content.querySelector('.form') as HTMLFormElement;
+const paymentForm = new PaymentForm(paymentFormElement, events);
+
+const contactsFormTemplate = document.querySelector('#contacts') as HTMLTemplateElement;
+const contactsFormElement = contactsFormTemplate.content.querySelector('.form') as HTMLFormElement;
+const contactsForm = new ContactsForm(contactsFormElement, events);
+
+const successTemplate = document.querySelector('#success') as HTMLTemplateElement;
+const successElement = successTemplate.content.querySelector('.order-success') as HTMLFormElement;
+const success = new Success('order-success', successElement, {onClick: ()=> modal.close()});
+
+
+// modal.render({content: success.render()});
 

@@ -4,17 +4,17 @@ import { IEvents } from "../base/events";
 
 interface IFormState {
     valid: boolean;
-    errors: string[];
+    errors: string;
 }
 
 export class FormView<T> extends Component<IFormState> {
-    protected _submit: HTMLButtonElement;
+    protected submit: HTMLButtonElement;
     protected _errors: HTMLElement;
 
     constructor(protected container: HTMLFormElement, protected events: IEvents) {
         super(container);
 
-        this._submit = ensureElement<HTMLButtonElement>('button[type=submit]', this.container);
+        this.submit = ensureElement<HTMLButtonElement>('button[type=submit]', this.container);
         this._errors = ensureElement<HTMLElement>('.form__errors', this.container);
 
         this.container.addEventListener('input', (e: Event) => {
@@ -38,18 +38,18 @@ export class FormView<T> extends Component<IFormState> {
     }
 
     set valid(value: boolean) {
-        this._submit.disabled = !value;
+        this.submit.disabled = !value;
     }
 
     set errors(value: string) {
         this.setText(this._errors, value);
     }
 
-    render(state: Partial<T> & IFormState) {
+    render(state?: Partial<T> & IFormState) {
+        if (!state) return this.container;
         const {valid, errors, ...inputs} = state;
         super.render({valid, errors});
         Object.assign(this, inputs);
         return this.container;
-
     }
 }

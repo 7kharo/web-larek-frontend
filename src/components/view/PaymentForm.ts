@@ -13,11 +13,12 @@ export class PaymentForm extends FormView<IPaymentForm> {
   protected offline: HTMLButtonElement;
   protected address: HTMLInputElement;
 
-  constructor(protected blockName: string, container: HTMLFormElement, protected events: IEvents) {
+  constructor(container: HTMLFormElement, protected events: IEvents) {
     super(container, events);
 
     this.online = container.elements.namedItem('card') as HTMLButtonElement;
     this.offline = container.elements.namedItem('cash') as HTMLButtonElement;
+    this.address = container.elements.namedItem('address') as HTMLInputElement;
 
     if (this.offline) {
       this.offline.addEventListener('click', () => {
@@ -33,6 +34,10 @@ export class PaymentForm extends FormView<IPaymentForm> {
         this.onInputChange('payment', 'online')
       })
     }
+  }
+
+  setAddress(value: string): void {
+    this.address.value = value;
   }
 
   disableButtons() {
