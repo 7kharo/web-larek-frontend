@@ -13,11 +13,11 @@ export class Success extends Component<ISuccess> {
   protected button: HTMLButtonElement;
   protected description: HTMLElement;
 
-  constructor(protected blockName: string, container: HTMLElement, actions?: ISuccessActions) {
+  constructor(protected container: HTMLElement, actions?: ISuccessActions) {
     super(container);
 
-    this.button = container.querySelector(`.${blockName}__close`);
-    this.description = container.querySelector(`.${blockName}__description`);
+    this.button = container.querySelector('.order-success__close');
+    this.description = container.querySelector('.order-success__description');
 
     if (actions?.onClick) {
       if (this.button) {

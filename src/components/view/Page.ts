@@ -37,9 +37,9 @@ export class Page extends Component<IPage> {
 
     setLocked(locked: boolean):void {
         if (locked) {
-            this.wrapper.classList.add ('.page__wrapper_locked');
+            this.wrapper.classList.add ('page__wrapper_locked');
         } else {
-            this.wrapper.classList.remove ('.page__wrapper_locked');
+            this.wrapper.classList.remove ('page__wrapper_locked');
         }
     }
 }

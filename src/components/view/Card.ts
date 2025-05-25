@@ -68,7 +68,7 @@ export class Card extends Component<ICard> {
 
     setCardImage (value: string): void {
         if (this.image) {
-            this.setImage(this.image, CDN_URL + value);
+            this.setImage(this.image, value);
         }
     }
 
@@ -87,6 +87,16 @@ export class Card extends Component<ICard> {
     setDescription (value: string): void {
         if (!this.description) {
             this.setText(this.description, value);
+        }
+    }
+
+    toggleButtonText (value:boolean) {
+        if (this.button) {
+            if (value) {
+                this.setText(this.button, 'Убрать из корзины')
+            } else {
+                this.setText(this.button, 'В корзину')
+            }
         }
     }
 

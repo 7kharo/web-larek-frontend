@@ -12,118 +12,172 @@ import { Modal } from './components/view/Modal';
 import { PaymentForm } from './components/view/PaymentForm';
 import { ContactsForm } from './components/view/ContactsForm';
 import { Success } from './components/view/Sucsess';
+import { API_URL, CDN_URL } from './utils/constants';
+import { AppApi } from './components/model/AppApi';
+import { BasketView } from './components/view/BasketView';
 
+// Экземпляры базовых объектов
+const api = new AppApi(CDN_URL, API_URL);
 const events = new EventEmitter();
-const basket = new Basket(events);
+
+// Шаблоны
+const cardTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
+const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
+const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
+const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
+const paymentFormTemplate = ensureElement<HTMLTemplateElement>('#order');
+const contactsFormTemplate = ensureElement<HTMLTemplateElement>('#contacts');
+const successTemplate = ensureElement<HTMLTemplateElement>('#success');
+
+//DOM-элементы
+const modalElement = ensureElement<HTMLElement>('#modal-container');
+const pageElement = document.querySelector('.page') as HTMLElement;
+const paymentFormElement = paymentFormTemplate.content.querySelector('.form') as HTMLFormElement;
+const contactsFormElement = contactsFormTemplate.content.querySelector('.form') as HTMLFormElement;
+const successElement = successTemplate.content.querySelector('.order-success') as HTMLFormElement;
+
+// Экземпляры объектов модели данных приложения
 const form = new FormData(events);
 const productList = new ProductList (events);
+const basket = new Basket (events);
 
-const pageElement = document.querySelector('.page') as HTMLElement;
-const modalElement = ensureElement<HTMLTemplateElement>('#modal-container');
+// Экземпляры глобальных объектов отображения 
 const page = new Page(pageElement, events);
 const modal = new Modal(modalElement, events);
 
-const cardTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
-const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
+// Экземпляры объектов отображения
+const basketView = new BasketView(cloneTemplate(basketTemplate), events);
+const paymentForm = new PaymentForm(paymentFormElement, events);
+const contactsForm = new ContactsForm(contactsFormElement, events);
+const success = new Success(cloneTemplate(successTemplate), {
+  onClick: () => {
+    events.emit('modal:close')
+    modal.close()
+  }
+});
 
-const items: IProduct[] = [
-        {
-            "id": "854cef69-976d-4c2a-a18c-2aa45046c390",
-            "description": "Если планируете решать задачи в тренажёре, берите два.",
-            "image": "/5_Dots.svg",
-            "title": "+1 час в сутках",
-            "category": "софт-скил",
-            "price": 750
-        },
-        {
-            "id": "c101ab44-ed99-4a54-990d-47aa2bb4e7d9",
-            "description": "Лизните этот леденец, чтобы мгновенно запоминать и узнавать любой цветовой код CSS.",
-            "image": "/Shell.svg",
-            "title": "HEX-леденец",
-            "category": "другое",
-            "price": 1450
-        },
-        {
-            "id": "b06cde61-912f-4663-9751-09956c0eed67",
-            "description": "Будет стоять над душой и не давать прокрастинировать.",
-            "image": "/Asterisk_2.svg",
-            "title": "Мамка-таймер",
-            "category": "софт-скил",
-            "price": null
-        },
-        {
-            "id": "412bcf81-7e75-4e70-bdb9-d3c73c9803b7",
-            "description": "Откройте эти куки, чтобы узнать, какой фреймворк вы должны изучить дальше.",
-            "image": "/Soft_Flower.svg",
-            "title": "Фреймворк куки судьбы",
-            "category": "дополнительное",
-            "price": 2500
-        },
-        {
-            "id": "1c521d84-c48d-48fa-8cfb-9d911fa515fd",
-            "description": "Если орёт кот, нажмите кнопку.",
-            "image": "/mute-cat.svg",
-            "title": "Кнопка «Замьютить кота»",
-            "category": "кнопка",
-            "price": 2000
-        },
-        {
-            "id": "f3867296-45c7-4603-bd34-29cea3a061d5",
-            "description": "Чтобы научиться правильно называть модификаторы, без этого не обойтись.",
-            "image": "Pill.svg",
-            "title": "БЭМ-пилюлька",
-            "category": "другое",
-            "price": 1500
-        },
-        {
-            "id": "54df7dcb-1213-4b3c-ab61-92ed5f845535",
-            "description": "Измените локацию для поиска работы.",
-            "image": "/Polygon.svg",
-            "title": "Портативный телепорт",
-            "category": "другое",
-            "price": 100000
-        },
-        {
-            "id": "6a834fb8-350a-440c-ab55-d0e9b959b6e3",
-            "description": "Даст время для изучения React, ООП и бэкенда",
-            "image": "/Butterfly.svg",
-            "title": "Микровселенная в кармане",
-            "category": "другое",
-            "price": 750
-        },
-        {
-            "id": "48e86fc0-ca99-4e13-b164-b98d65928b53",
-            "description": "Очень полезный навык для фронтендера. Без шуток.",
-            "image": "Leaf.svg",
-            "title": "UI/UX-карандаш",
-            "category": "хард-скил",
-            "price": 10000
-        },
-        {
-            "id": "90973ae5-285c-4b6f-a6d0-65d1d760b102",
-            "description": "Сжимайте мячик, чтобы снизить стресс от тем по бэкенду.",
-            "image": "/Mithosis.svg",
-            "title": "Бэкенд-антистресс",
-            "category": "другое",
-            "price": 1000
+// Обработка события изменения списка карточек с товарами
+events.on('productList: change', () => {
+  page.setCatalog(productList.getProducts().map((item) => {
+    const product = new Card ('card', cloneTemplate(cardTemplate), {
+      onClick: () => events.emit('product: preview', item),
+    });
+    return product.renderCard(item);
+  }));
+});
+
+// Обработка клика по карточке (открытие полного описания товара)
+events.on('product: preview', (item: IProduct) => {
+    page.setLocked(true);
+    const previewCard = new Card ('card', cloneTemplate(cardPreviewTemplate), {
+        onClick: () => {
+            if (basket.isProductIn(item.id)) {
+                events.emit('product: deleteFromBasket', item);
+            } else {
+                events.emit('product: addToBasket', item);
+            }
         }
-    ]
+    });
+    previewCard.toggleButtonText(basket.isProductIn(item.id));
+    modal.render({content: previewCard.renderCard(item)});
+});
 
-    productList.setProducts(items);
-    const domCards:HTMLElement[] = productList.getProducts().map((item) => {
-        const product = new Card ('card', cloneTemplate(cardTemplate), {
-            onClick: () => {
-                modal.render({content: previewCard.renderCard(item)});
-                modal.open();
-                page.setLocked(true);
-            },
-        });
-        return product.renderCard(item);
+// Обработка клика по добавления товара в корзину на превью карточки
+events.on('product: addToBasket', (item: IProduct) => {
+    basket.addProduct(item);
+    page.setCounter(basket.getItemsCount());
+    const previewCard = new Card ('card', cloneTemplate(cardPreviewTemplate), {
+        onClick: () => {
+            events.emit('product: deleteFromBasket', item);
+        }
+    });
+    previewCard.toggleButtonText(basket.isProductIn(item.id));
+    modal.render({content: previewCard.renderCard(item)});
+});
+
+// Обработка клика по удалению товара из корзины на превью карточки
+events.on('product: deleteFromBasket', (item: IProduct) => {
+    basket.deleteProduct(item.id);
+    page.setCounter(basket.getItemsCount());
+    const previewCard = new Card ('card', cloneTemplate(cardPreviewTemplate), {
+        onClick: () => {
+            events.emit('product: addToBasket', item);
+        }
+    });
+    previewCard.toggleButtonText(basket.isProductIn(item.id));
+    modal.render({content: previewCard.renderCard(item)});
+});
+
+// Обработка изменения состава корзины
+events.on ('basket: change', () => {
+    const basketItems = basket.getBasketProducts().map((item: IProduct) => {
+        const basketItem = new Card('card', cloneTemplate(cardBasketTemplate), {
+                onClick: () => {
+                    events.emit('basket: delete', item);
+                }
+            });
+        return basketItem.renderCard(item);
+    });
+    modal.render({
+        content: basketView.renderBasket(basketItems, basket.getTotalSum())
+    });
+})
+
+// Обработка клика по иконке корзины для открытия корзины
+events.on('basket: open', () => {
+    page.setLocked(true);
+    events.emit('basket: change');
+});
+
+// Обработка клика по иконке удаления товара из корзины
+events.on('basket: delete', (item: IProduct) => {
+    basket.deleteProduct(item.id);
+    events.emit('basket: change');
+});
+
+// Обработка клика по кнопке "Оформить" для заказа товаров из корзины
+events.on('basket: order', () => {
+    modal.render({
+    content: paymentForm.render(
+      {
+        address: '',
+        valid: false,
+        errors: ''
+      }
+    ),
+  });
+}) 
+
+// Обработка закрытия модального окна
+events.on('modal:close', () => {
+  page.setLocked(false);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Получаем лоты с сервера
+api.getProductList()
+    .then(productList.setProducts.bind(productList))
+    .catch(err => {
+        console.error(err);
     });
 
-    page.setCatalog(domCards);
-    const previewCard = new Card ('card', cloneTemplate(cardPreviewTemplate));
-    modal.render({content: previewCard.renderCard(items[2])});
+
+
+
+    // page.setCatalog(domCards);
+    // const previewCard = new Card ('card', cloneTemplate(cardPreviewTemplate));
+    // modal.render({content: previewCard.renderCard(items[2])});
 
     // Валидация
 
@@ -140,18 +194,4 @@ const items: IProduct[] = [
     //     })
     // })
 
-const paymentFormTemplate = document.querySelector('#order') as HTMLTemplateElement;
-const paymentFormElement = paymentFormTemplate.content.querySelector('.form') as HTMLFormElement;
-const paymentForm = new PaymentForm(paymentFormElement, events);
-
-const contactsFormTemplate = document.querySelector('#contacts') as HTMLTemplateElement;
-const contactsFormElement = contactsFormTemplate.content.querySelector('.form') as HTMLFormElement;
-const contactsForm = new ContactsForm(contactsFormElement, events);
-
-const successTemplate = document.querySelector('#success') as HTMLTemplateElement;
-const successElement = successTemplate.content.querySelector('.order-success') as HTMLFormElement;
-const success = new Success('order-success', successElement, {onClick: ()=> modal.close()});
-
-
-// modal.render({content: success.render()});
 
