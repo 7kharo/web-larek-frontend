@@ -4,12 +4,12 @@ import { Basket } from './components/model/Basket';
 import { FormData } from './components/model/FormData';
 import { ProductList } from './components/model/ProductList';
 import { IEvents, EventEmitter } from './components/base/events';
-import { IProduct } from './types';
+import { ApiResponse, IProduct } from './types';
 import { Page } from './components/view/Page';
 import { cloneTemplate, ensureElement } from './utils/utils';
 import { Card } from './components/view/Card';
 import { Modal } from './components/view/Modal';
-import { PaymentForm } from './components/view/PaymentForm';
+import { IPaymentForm, PaymentForm } from './components/view/PaymentForm';
 import { ContactsForm } from './components/view/ContactsForm';
 import { Success } from './components/view/Sucsess';
 import { API_URL, CDN_URL } from './utils/constants';
@@ -108,8 +108,8 @@ events.on('product: deleteFromBasket', (item: IProduct) => {
     modal.render({content: previewCard.renderCard(item)});
 });
 
-// Обработка изменения состава корзины
-events.on ('basket: change', () => {
+// Рендер при изменении или открытии корзины
+events.on ('basket: render', () => {
     const basketItems = basket.getBasketProducts().map((item: IProduct) => {
         const basketItem = new Card('card', cloneTemplate(cardBasketTemplate), {
                 onClick: () => {
@@ -126,43 +126,109 @@ events.on ('basket: change', () => {
 // Обработка клика по иконке корзины для открытия корзины
 events.on('basket: open', () => {
     page.setLocked(true);
-    events.emit('basket: change');
+    events.emit('basket: render');
 });
 
 // Обработка клика по иконке удаления товара из корзины
 events.on('basket: delete', (item: IProduct) => {
     basket.deleteProduct(item.id);
-    events.emit('basket: change');
+    events.emit('basket: render');
 });
 
 // Обработка клика по кнопке "Оформить" для заказа товаров из корзины
 events.on('basket: order', () => {
-    modal.render({
-    content: paymentForm.render(
-      {
-        address: '',
-        valid: false,
-        errors: ''
-      }
-    ),
-  });
-}) 
+    modal.render({content: paymentForm.render()});
+});
+
+// Обработка изменения полей формы с выбором оплаты
+events.on(/^order\..*: change/, (data: { field: keyof IPaymentForm, value: string }) => {
+    form.setFormField(data.field, data.value);
+});
+
+// Обработка изменения полей формы с контактами
+events.on(/^contacts\..*: change/, (data: { field: keyof IPaymentForm, value: string }) => {
+    form.setFormField(data.field, data.value);
+});
+
+
+// Обработка изменений данных формы и вывод уже измененных данных на странице
+events.on('form: changed', () => {
+    const { payment, address, email, phone } = form.validateOrder();
+    
+    let errorsPayment: string;
+    let errorsContacts: string;
+    
+    if (!payment || !address) {
+        errorsPayment = Object.values({ payment, address }).filter((i) => !!i).join('; ');
+    } else {
+        errorsPayment = '';
+    }
+
+    if (!email || !phone) {
+        errorsContacts = Object.values({ email, phone }).filter((i) => !!i).join('; ');
+    } else {
+        errorsContacts = '';
+    }
+    
+    const validContacts = !email && !phone;
+    const validPayment = !payment && !address;
+    // const errorsPayment = Object.values({ payment, address }).filter((i) => !!i).join('; ');
+    // const errorsContacts = Object.values({ email, phone }).filter((i) => !!i).join('; ');
+    paymentForm.render(
+        {
+            payment: form.getFormFields().payment,
+            address: form.getFormFields().address,
+            valid: validPayment,
+            errors: errorsPayment,
+        }
+    )
+
+    contactsForm.render(
+        {
+            email: form.getFormFields().email,
+            phone: form.getFormFields().phone,
+            valid: validContacts,
+            errors: errorsContacts,
+        }
+    )
+});
+
+
+// Обработка клика по кнопке "Далее" для ввода контактных данных
+events.on('order: submit', () => {
+    modal.render({content: contactsForm.render()});
+});
+
+// Обработка оформления товаров по кнопке "Оформить" в модальном окне с контактами
+events.on('contacts: submit', () => {
+    const formData = form.getFormFields();
+    const productsId = basket.getBasketProducts().map((item) => {
+        return item.id;
+    })
+    const orderObject = {
+        ...formData,
+        total: basket.getTotalSum(),
+        items: productsId,
+    }
+    api.orderProducts(orderObject)
+        .then((res) => {
+            basket.clearBasket();
+            page.setCounter(basket.getItemsCount());
+            success.setDescription(orderObject.total);
+            modal.render({
+                content: success.render({})
+            });
+        })
+        .catch(err => {
+            console.error(err);
+        });
+})
+
 
 // Обработка закрытия модального окна
 events.on('modal:close', () => {
   page.setLocked(false);
 });
-
-
-
-
-
-
-
-
-
-
-
 
 
 // Получаем лоты с сервера
@@ -172,26 +238,4 @@ api.getProductList()
         console.error(err);
     });
 
-
-
-
-    // page.setCatalog(domCards);
-    // const previewCard = new Card ('card', cloneTemplate(cardPreviewTemplate));
-    // modal.render({content: previewCard.renderCard(items[2])});
-
-    // Валидация
-
-    // events.on('order: change', () => {
-    //     const { email, phone } = form.validateOrder();
-    //     const valid = !email && !phone;
-    //     const errors = Object.values({ phone, email }).filter((i) => !!i).join('; ');
-
-    //     PaymentForm.render({
-    //         email: form.getFormFields().email,
-    //         phone: form.getFormFields().phone,
-    //         valid: valid,
-    //         errors: errors,
-    //     })
-    // })
-
-
+form.clearForm();

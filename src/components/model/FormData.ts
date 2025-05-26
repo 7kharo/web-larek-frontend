@@ -18,7 +18,7 @@ export class FormData {
 
     setFormField<T extends keyof IForm>(field: T, value: IForm[T]): void {
         this.formFields[field] = value;
-        this.events.emit ('form: changed');
+        this.events.emit ('form: changed', {field: field});
     }
 
     validateOrder() {
@@ -33,7 +33,7 @@ export class FormData {
             errors.payment = 'Необходимо указать тип оплаты';
         }
         if (!this.formFields.address) {
-            errors.payment = 'Необходимо указать адрес доставки';
+            errors.address = 'Необходимо указать адрес доставки';
         }
         return errors
     }

@@ -1,12 +1,12 @@
 import { IEvents } from "../base/events";
 import { FormView } from "./FormView";
 
-export interface IContacts {
+export interface IContactsForm {
   phone: string;
   email: string;
 }
 
-export class ContactsForm extends FormView<IContacts> {
+export class ContactsForm extends FormView<IContactsForm> {
   constructor(container: HTMLFormElement, events: IEvents) {
     super(container, events);
   }

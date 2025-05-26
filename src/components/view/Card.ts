@@ -85,8 +85,8 @@ export class Card extends Component<ICard> {
     }
 
     setDescription (value: string): void {
-        if (!this.description) {
-            this.setText(this.description, value);
+        if (this.description) {
+            this.description.textContent = value;
         }
     }
 
@@ -106,7 +106,7 @@ export class Card extends Component<ICard> {
         this.setId(item.id);
         this.setCardImage(item.image);
         this.setCategory(item.category);
-        this.setDescription(item.category);
+        this.setDescription(item.description);
         return this.container;
     }
 }

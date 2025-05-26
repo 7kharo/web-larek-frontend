@@ -39,6 +39,6 @@ export class Basket {
     clearBasket():void {
         this.products = [];
         this.events.emit('basket: change');
-    } // очищает содержимое корзины (массива _productsBasket)
+    } // полностью очищает содержимое корзины (массива _productsBasket)
 
 }

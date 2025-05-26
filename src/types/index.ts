@@ -4,6 +4,10 @@ export type FormErrors = Partial<Record<keyof IForm, string>>;
 export type CategoryClassesType = {
   [Key in ProductType]: string;
 };
+export interface ApiResponse {
+    total: number;
+    items: IProduct[],
+}
 
  export interface IProduct {
     id: string;
@@ -22,7 +26,7 @@ export interface IForm {
 }
 
 export interface IOrder extends IForm {
-    products: string[]
+    items: string[]
     total: number;
 }
  

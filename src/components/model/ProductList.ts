@@ -12,10 +12,10 @@ export class ProductList {
         this.events.emit ('productList: change', this.items);
     }
 
-    setPreview (product: IProduct): void {
-        this.preview = product;
-        this.events.emit('productList: preview', this.preview);
-    }
+    // setPreview (product: IProduct): void {
+    //     this.preview = product;
+    //     this.events.emit('productList: preview', this.preview);
+    // }
 
     getProducts ():IProduct[] {
         return this.items;
