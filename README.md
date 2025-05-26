@@ -110,7 +110,7 @@ interface IOrderResult {
 ```
 type ProductType = 'софт-скил' | 'другое' | 'дополнительное' | 'кнопка' | 'хард-скил';
 
-type PaymentType = 'онлайн' | 'при получении' | '';
+type PaymentType = 'online' | 'offline' | ''; 
 
 type FormErrors = Partial<Record<keyof IForm, string>>;
 type CategoryClassesType = {
@@ -230,7 +230,7 @@ type CategoryClassesType = {
 - protected price: HTMLElement - цена товара
 Методы класса:
 
-- renderCard (item: IProduct): HTMLElement - метод для создания разметки карточки по указанным данным (включает в себя защищенные методы по установки всех полей карточки: setId, setTitle, setDescription, setImage, setPrice и setCategory)
+- renderCard (item: IProduct): HTMLElement - метод для создания разметки карточки по указанным данным (включает в себя защищенные методы по установки всех полей карточки: `setId`, `setTitle`, `setDescription`, `setImage`, `setPrice` и `setCategory`)
 - toggleButtonText (value:boolean): void - метод для изменения текста кнопки добавления товара в корзину
 
 #### Класс FormView
@@ -255,6 +255,10 @@ type CategoryClassesType = {
 - protected online: HTMLButtonElement - кнопка "Онлайн"
 - protected offline: HTMLButtonElement - кнопка "При получении"
 - protected address: HTMLInputElement - поле ввода адреса
+
+Методы:
+- protected togglePaymentButton (value: PaymentType): void - метод для переключения активной кнопки выбора оплаты, исходя из указанных данных
+- расширение родительского метода render с добавлением исполнения функции `togglePaymentButton`
 
 
 #### Класс ContactsForm
@@ -304,8 +308,8 @@ type CategoryClassesType = {
 - `product: preview` - при клике на карточку товара, вызывается модальное окно с полным описанием товара
 - `product: addToBasket` - при добавлении в корзину по клику на кнопке "В корзину" в модальном окне с полным описанием товара
 - `product: deleteFromBasket` -  при удалении товара из корзины на превью карточки
-- `basket: render` - при необходимости отрисовки элементов корзины в модальном окне
 - `basket: open` - при клике на иконку корзины открывается модальное окно с товарами в корзине
+- `basket: change` - при изменении состава корзины
 - `basket: order` - при клике на кнопку "Оформить" в модальном окне корзины открывается модальное окно для заполнения адреса и способа оплаты
 - `basket: delete` - при клике на кнопку удаления товара в модальном окне корзины. При действии товар удаляется из массива productBasket, обновлчется счетчик корзины на главной странице
 - `/^order\..*: change/` - при изменении полей формы в модальном окне с выбором оплаты

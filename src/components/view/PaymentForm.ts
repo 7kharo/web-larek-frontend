@@ -1,6 +1,6 @@
 import { PaymentType } from "../../types";
 import { IEvents } from "../base/events";
-import { FormView } from "./FormView";
+import { FormView, IFormState } from "./FormView";
 
 export interface IPaymentForm {
   address: string;
@@ -11,7 +11,7 @@ export interface IPaymentForm {
 export class PaymentForm extends FormView<IPaymentForm> {
   protected online: HTMLButtonElement;
   protected offline: HTMLButtonElement;
-  protected address: HTMLInputElement;
+  protected address: HTMLInputElement; 
 
   constructor(container: HTMLFormElement, protected events: IEvents) {
     super(container, events);
@@ -22,17 +22,39 @@ export class PaymentForm extends FormView<IPaymentForm> {
 
     if (this.offline) {
       this.offline.addEventListener('click', () => {
-        this.offline.classList.add('button_alt-active')
-        this.online.classList.remove('button_alt-active')
         this.onInputChange('payment', 'offline')
       })
     }
     if (this.online) {
       this.online.addEventListener('click', () => {
-        this.online.classList.add('button_alt-active')
-        this.offline.classList.remove('button_alt-active')
         this.onInputChange('payment', 'online')
       })
     }
+  }
+
+  protected togglePaymentButton (value: PaymentType): void {
+    if (value === 'online') {
+      this.online.classList.add('button_alt-active');
+      this.offline.classList.remove('button_alt-active');
+    } else {
+      if (value === 'offline') {
+        this.offline.classList.add('button_alt-active');
+        this.online.classList.remove('button_alt-active');
+      } else {
+        this.offline.classList.remove('button_alt-active');
+        this.online.classList.remove('button_alt-active');
+      }
+    }
+  }
+
+  render(state?: Partial<IPaymentForm> & IFormState): HTMLFormElement {
+    super.render(state);
+
+    if (state) {
+      if (state.payment) {
+        this.togglePaymentButton(state.payment);
+      }
+    }
+    return this.container;
   }
 }

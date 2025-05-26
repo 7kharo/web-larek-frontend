@@ -51,7 +51,6 @@ const paymentForm = new PaymentForm(paymentFormElement, events);
 const contactsForm = new ContactsForm(contactsFormElement, events);
 const success = new Success(cloneTemplate(successTemplate), {
   onClick: () => {
-    events.emit('modal:close')
     modal.close()
   }
 });
@@ -85,7 +84,6 @@ events.on('product: preview', (item: IProduct) => {
 // Обработка клика по добавления товара в корзину на превью карточки
 events.on('product: addToBasket', (item: IProduct) => {
     basket.addProduct(item);
-    page.setCounter(basket.getItemsCount());
     const previewCard = new Card ('card', cloneTemplate(cardPreviewTemplate), {
         onClick: () => {
             events.emit('product: deleteFromBasket', item);
@@ -98,7 +96,6 @@ events.on('product: addToBasket', (item: IProduct) => {
 // Обработка клика по удалению товара из корзины на превью карточки
 events.on('product: deleteFromBasket', (item: IProduct) => {
     basket.deleteProduct(item.id);
-    page.setCounter(basket.getItemsCount());
     const previewCard = new Card ('card', cloneTemplate(cardPreviewTemplate), {
         onClick: () => {
             events.emit('product: addToBasket', item);
@@ -108,8 +105,9 @@ events.on('product: deleteFromBasket', (item: IProduct) => {
     modal.render({content: previewCard.renderCard(item)});
 });
 
-// Рендер при изменении или открытии корзины
-events.on ('basket: render', () => {
+// Обработка клика по иконке корзины для открытия корзины
+events.on('basket: open', () => {
+    page.setLocked(true);
     const basketItems = basket.getBasketProducts().map((item: IProduct) => {
         const basketItem = new Card('card', cloneTemplate(cardBasketTemplate), {
                 onClick: () => {
@@ -121,18 +119,27 @@ events.on ('basket: render', () => {
     modal.render({
         content: basketView.renderBasket(basketItems, basket.getTotalSum())
     });
-})
-
-// Обработка клика по иконке корзины для открытия корзины
-events.on('basket: open', () => {
-    page.setLocked(true);
-    events.emit('basket: render');
 });
+
+// Обработка изменения состава корзины
+events.on('basket: change', () => {
+    const basketItems = basket.getBasketProducts().map((item: IProduct) => {
+        const basketItem = new Card('card', cloneTemplate(cardBasketTemplate), {
+                onClick: () => {
+                    events.emit('basket: delete', item);
+                }
+            });
+        return basketItem.renderCard(item);
+    });
+    modal.render({
+        content: basketView.renderBasket(basketItems, basket.getTotalSum())
+    });
+    page.setCounter(basket.getItemsCount());
+})
 
 // Обработка клика по иконке удаления товара из корзины
 events.on('basket: delete', (item: IProduct) => {
     basket.deleteProduct(item.id);
-    events.emit('basket: render');
 });
 
 // Обработка клика по кнопке "Оформить" для заказа товаров из корзины
@@ -149,7 +156,6 @@ events.on(/^order\..*: change/, (data: { field: keyof IPaymentForm, value: strin
 events.on(/^contacts\..*: change/, (data: { field: keyof IPaymentForm, value: string }) => {
     form.setFormField(data.field, data.value);
 });
-
 
 // Обработка изменений данных формы и вывод уже измененных данных на странице
 events.on('form: changed', () => {
@@ -172,8 +178,7 @@ events.on('form: changed', () => {
     
     const validContacts = !email && !phone;
     const validPayment = !payment && !address;
-    // const errorsPayment = Object.values({ payment, address }).filter((i) => !!i).join('; ');
-    // const errorsContacts = Object.values({ email, phone }).filter((i) => !!i).join('; ');
+
     paymentForm.render(
         {
             payment: form.getFormFields().payment,
@@ -182,6 +187,7 @@ events.on('form: changed', () => {
             errors: errorsPayment,
         }
     )
+    
 
     contactsForm.render(
         {
