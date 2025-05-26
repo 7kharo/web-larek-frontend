@@ -1,5 +1,5 @@
 import { IEvents } from '../base/events';
-import { PaymentType, IForm, FormErrors } from '../../types';
+import { IForm, FormErrors } from '../../types';
 
 export class FormData {
     protected formFields: IForm = {
@@ -8,7 +8,6 @@ export class FormData {
         email: '',
         phone: '',
     };
-    protected formErrors: FormErrors = {};
     
     constructor (protected events: IEvents) {}
 
@@ -18,11 +17,11 @@ export class FormData {
 
     setFormField<T extends keyof IForm>(field: T, value: IForm[T]): void {
         this.formFields[field] = value;
-        this.events.emit ('form: changed', {field: field});
+        this.events.emit ('form: changed');
     }
 
-    validateOrder() {
-        const errors: typeof this.formErrors = {};
+    validateOrder(): FormErrors {
+        const errors: FormErrors = {};
         if (!this.formFields.email) {
             errors.email = 'Необходимо указать email';
         }
@@ -38,7 +37,7 @@ export class FormData {
         return errors
     }
 
-    clearForm () {
+    clearForm (): void {
         this.formFields = {
             payment: '',
             address: '',

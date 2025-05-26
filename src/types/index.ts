@@ -32,7 +32,6 @@ export interface IOrder extends IForm {
  
 export interface IProductList {
     items: IProduct[];
-    preview: IProduct;
 }
 
 export interface IBasket {

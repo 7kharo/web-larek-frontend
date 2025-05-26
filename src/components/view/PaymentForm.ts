@@ -35,13 +35,4 @@ export class PaymentForm extends FormView<IPaymentForm> {
       })
     }
   }
-
-  // setAddress(value: string): void {
-  //   this.address.value = value;
-  // }
-
-  // disableButtons() {
-  //   this.offline.classList.remove('button_alt-active')
-  //   this.online.classList.remove('button_alt-active')
-  // }
 }

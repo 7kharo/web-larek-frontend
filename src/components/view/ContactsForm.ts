@@ -7,7 +7,7 @@ export interface IContactsForm {
 }
 
 export class ContactsForm extends FormView<IContactsForm> {
-  constructor(container: HTMLFormElement, events: IEvents) {
+  constructor(container: HTMLFormElement, protected events: IEvents) {
     super(container, events);
   }
 }

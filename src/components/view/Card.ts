@@ -47,32 +47,28 @@ export class Card extends Component<ICard> {
         }
     }
 
-    setId (value: string): void {
+    protected setId (value: string): void {
         this.container.dataset.id = value;
     }
 
-    getId (): string {
-        return this.container.dataset.id || '';
-    }
-
-    setTitle (value: string): void {
+    protected setTitle (value: string): void {
         this.setText(this.title, value);
     }
 
-    setCategory (value: ProductType): void {
+    protected setCategory (value: ProductType): void {
         if (this.category) {
             this.setText (this.category, value);
             this.category.classList.add(categoryClasses[value]);
         }
     }
 
-    setCardImage (value: string): void {
+    protected setCardImage (value: string): void {
         if (this.image) {
             this.setImage(this.image, value);
         }
     }
 
-    setPrice (value: number): void {  
+    protected setPrice (value: number): void {  
         if (!value) {
             this.setText(this.price, 'Бесценно');    
         } else {
@@ -84,13 +80,13 @@ export class Card extends Component<ICard> {
         }
     }
 
-    setDescription (value: string): void {
+    protected setDescription (value: string): void {
         if (this.description) {
             this.description.textContent = value;
         }
     }
 
-    toggleButtonText (value:boolean) {
+    toggleButtonText (value:boolean): void {
         if (this.button) {
             if (value) {
                 this.setText(this.button, 'Убрать из корзины')

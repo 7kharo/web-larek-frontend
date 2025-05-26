@@ -26,7 +26,7 @@ export class Success extends Component<ISuccess> {
     }
   }
 
-  setDescription(value: number) {
+  setDescription(value: number): void {
     this.description.textContent = `Списано ${value.toString()} синапсов`;
   }
 }

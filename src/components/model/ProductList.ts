@@ -3,7 +3,6 @@ import { IEvents } from "../base/events";
 
 export class ProductList {
     protected items: IProduct[];
-    protected preview: IProduct;
 
     constructor (protected events: IEvents) {}
 
@@ -11,11 +10,6 @@ export class ProductList {
         this.items = productsArray;
         this.events.emit ('productList: change', this.items);
     }
-
-    // setPreview (product: IProduct): void {
-    //     this.preview = product;
-    //     this.events.emit('productList: preview', this.preview);
-    // }
 
     getProducts ():IProduct[] {
         return this.items;
