@@ -8,11 +8,13 @@
   background-color: $primary;
   color: white;
   padding: $defaultPadding;
+  align-items: flex-start; //
 
   &_full {
     flex-direction: row;
     background-color: transparent;
 
+    align-items: normal; //
     .card__title {
       flex-grow: 0;
     }
@@ -21,7 +23,6 @@
   &_compact {
     flex-direction: row;
     background-color: transparent;
-    align-items: center;
     border-radius: 0;
 
     .card__title {
@@ -44,6 +45,7 @@
     height: 390px;
     aspect-ratio: 1;
     margin: 3.75rem;
+    align-self: center; //
   }
   &__title {
     font-size: $titleFontSize;
